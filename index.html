@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramienta de Formato Aiken</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #4a90e2;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #555;
+            line-height: 1.6;
+        }
+        .instructions {
+            background-color: #eaf2fb;
+            border-left: 5px solid #4a90e2;
+            padding: 10px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 0.95em;
+        }
+        input[type="file"] {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="file"]:hover {
+            background-color: #e1e7f2;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background-color: #357ab8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Herramienta de Formato Aiken</h1>
+        <p>Esta herramienta está diseñada principalmente para **quitar el número de pregunta** al inicio de cada pregunta en formato Aiken y asegurarse de que el formato sea compatible con Moodle.</p>
+        
+        <div class="instructions">
+            <h2>Instrucciones</h2>
+            <p>Sube un archivo de texto que contenga preguntas en formato Aiken. La herramienta eliminará automáticamente el número al inicio de cada pregunta y verificará que el archivo cumpla con los siguientes criterios de formato:</p>
+            <ul>
+                <li><strong>Formato de pregunta</strong>: La pregunta debe estar en una sola línea, sin número al inicio.</li>
+                <li><strong>Opciones de respuesta</strong>: Cada opción debe comenzar con una letra ("A.", "B.", etc.) seguida de un punto y un espacio.</li>
+                <li><strong>Respuesta correcta</strong>: La respuesta correcta debe indicarse con "ANSWER: X" en una línea aparte, donde "X" es la letra correspondiente.</li>
+            </ul>
+            <p><strong>Ejemplo de entrada en formato Aiken (antes de quitar el número):</strong></p>
+            <pre>
+1. ¿Cuál es la capital de Francia?
+A. Madrid
+B. Berlín
+C. París
+ANSWER: C
+            </pre>
+            <p><strong>Resultado después de procesar:</strong></p>
+            <pre>
+¿Cuál es la capital de Francia?
+A. Madrid
+B. Berlín
+C. París
+ANSWER: C
+            </pre>
+        </div>
+        
+        <input type="file" id="fileInput" accept=".txt" />
+        <button id="downloadButton" disabled>Descargar Formato Aiken</button>
+    </div>
+
+    <script>
+        let formattedText = '';
+
+        // Maneja la carga del archivo y el formateo
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    console.log("Contenido del archivo:", content);  // Verificar el contenido inicial
+                    formatAiken(content);
+                    document.getElementById('downloadButton').disabled = false; // Habilita el botón de descarga
+                };
+                reader.readAsText(file, 'UTF-8');
+            }
+        });
+
+        // Formateo del texto en formato Aiken para exportar correctamente
+        function formatAiken(text) {
+            formattedText = ''; // Reiniciar el texto formateado
+            const questionsArray = []; // Arreglo para almacenar las preguntas procesadas
+
+            // Divide el contenido en líneas
+            const lines = text.trim().split('\n');
+            console.log("Líneas procesadas:", lines); // Verificar la división en líneas
+
+            let question = '';
+            let options = [];
+            let answer = '';
+
+            lines.forEach(line => {
+                line = line.trim();
+                console.log("Línea procesada:", line);  // Mostrar cada línea antes de procesarla
+                
+                // Detecta el comienzo de una pregunta
+                if (/^\d+\.\s?/.test(line) || (/^[A-Za-z¿]/.test(line) && !/^[A-D]\./.test(line) && !/^ANSWER:/.test(line))) {
+                    // Almacena la pregunta anterior si existe
+                    if (question && options.length > 0 && answer) {
+                        questionsArray.push({ question, options, answer });
+                        console.log("Pregunta almacenada:", { question, options, answer });  // Mostrar pregunta almacenada
+                    }
+
+                    // Inicia una nueva pregunta
+                    question = line.replace(/^\d+\.\s?/, '').trim(); // Quita el número seguido de punto con o sin espacio
+                    options = [];
+                    answer = '';
+                }
+                // Detecta las opciones de respuesta
+                else if (/^[A-D]\.\s/.test(line)) {
+                    options.push(line);
+                    console.log("Opción añadida:", line); // Mostrar cada opción añadida
+                }
+                // Detecta la respuesta correcta y almacena la pregunta completa
+                else if (/^ANSWER:\s*/.test(line)) {
+                    answer = line;
+                    console.log("Respuesta detectada:", answer); // Mostrar respuesta correcta detectada
+
+                    // Almacena la pregunta completa ahora que se ha encontrado la respuesta
+                    if (question && options.length > 0 && answer) {
+                        questionsArray.push({ question, options, answer });
+                        console.log("Pregunta completa almacenada:", { question, options, answer });  // Mostrar pregunta completa almacenada
+                        
+                        // Reiniciar para la siguiente pregunta
+                        question = '';
+                        options = [];
+                        answer = '';
+                    }
+                }
+            });
+
+            // Verificar el contenido final de questionsArray antes de formatear el texto
+            console.log("Array final de preguntas:", questionsArray);
+
+            // Formatear las preguntas y opciones para exportar
+            questionsArray.forEach(item => {
+                formattedText += item.question + '\n';
+                item.options.forEach(option => {
+                    formattedText += option + '\n';
+                });
+                formattedText += item.answer + '\n\n';
+            });
+        }
+
+        // Función para descargar el archivo formateado
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            const blob = new Blob([formattedText.trim()], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Encuesta_Aiken_Formateada.txt';
+            link.click();
+            URL.revokeObjectURL(url); // Libera el recurso
+        });
+    </script>
+</body>
+</html>
