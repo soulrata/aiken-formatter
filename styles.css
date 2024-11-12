@@ -1,0 +1,115 @@
+@import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 800px;
+}
+
+h1 {
+    font-size: 28px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input[type="file"] {
+    margin-bottom: 20px;
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e1e4e8;
+    border-radius: 6px;
+    background-color: #fafbfc;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="file"]:hover {
+    border-color: #0366d6;
+    box-shadow: 0 0 5px rgba(3, 102, 214, 0.3);
+}
+
+button {
+    background-color: #24292e;
+    color: #ffffff;
+    border: 1px solid #1b1f23;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    font-weight: 600;
+}
+
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+button:hover:enabled {
+    background-color: #0366d6;
+    border-color: #0056b3;
+}
+
+button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.log-container {
+    margin-top: 30px;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    max-height: none;
+    height: auto;
+    overflow-y: visible;
+    white-space: pre-wrap;
+}
+
+.log-line {
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 5px;
+}
+
+#logContainer .log-line:nth-child(odd) {
+    background-color: #2a2a2a;
+}
+
+#logContainer .log-line:nth-child(even) {
+    background-color: #242424;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+
+    button {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    input[type="file"] {
+        padding: 15px;
+    }
+}
